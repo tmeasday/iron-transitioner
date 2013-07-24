@@ -1,3 +1,24 @@
+// Handlebars.registerHelper('transition', function(options) {
+//   var contentFn = options.fn;
+//   
+//   Session.set('renderToLeft', true);
+//   Session.set('renderToRight', false);
+//   Session.set('ceal')
+//   
+//   return '<div class="transition-panes">' +
+//     Spark.isolate(function() {
+//       if (Session.get('renderToLeft', true))
+//         return contentFn();
+//       
+//       
+//     })
+//   
+//   
+// });
+
+
+ClientRouter.prototype.layout = 'transitionerPanes';
+
 Transitioner = {
   _transitionEvents: 'webkitTransitionEnd.transitioner oTransitionEnd.transitioner transitionEnd.transitioner msTransitionEnd.transitioner transitionend.transitioner',
   
@@ -11,27 +32,26 @@ Transitioner = {
     Deps.autorun(function() {
       var newContext = Router.current();
       
-      console.log(newContext);
       if (! oldContext || oldContext.path !== newContext.path) {
-        self.transitionStart(newContext);
+        self.transitionStart();
         oldContext = newContext;
       }
     });
   },
   
-  transitionStart: function(context) {
+  transitionStart: function() {
+    console.log('>> Transition happening');
     var self = this;
     
     if (! self.reverse) {
-      self.renderTo(context, self.leftPane);
+      self.renderTo(self.leftPane);
       self.reverse = true;
     } else {
-      self.renderTo(context, self.rightPane);
+      self.renderTo(self.rightPane);
       self.reverse = false;
     }
     
-    // force a redraw
-    $(self.container).offset();
+    self.container.offsetWidth; // force a redraw
     
     $(self.container).addClass('transitioning')
       .on(self._transitionEvents, function(e) {
@@ -61,8 +81,12 @@ Transitioner = {
       .off(self._transitionEvents);
   },
   
-  renderTo: function(context, pane) {
-    pane.appendChild(Meteor.render(_.bind(context.result, context)));
+  renderTo: function(pane) {
+    pane.appendChild(Meteor.render(function() {
+      // render the current page to the current pane
+      return Router._partials.get().render();
+    }));
+    
     this.nextPage = pane;
     $(pane).addClass('next-page');
   }
