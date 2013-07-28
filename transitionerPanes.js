@@ -1,47 +1,32 @@
-// Handlebars.registerHelper('transition', function(options) {
-//   var contentFn = options.fn;
-//   
-//   Session.set('renderToLeft', true);
-//   Session.set('renderToRight', false);
-//   Session.set('ceal')
-//   
-//   return '<div class="transition-panes">' +
-//     Spark.isolate(function() {
-//       if (Session.get('renderToLeft', true))
-//         return contentFn();
-//       
-//       
-//     })
-//   
-//   
-// });
-
-
 ClientRouter.prototype.layout = 'transitionerPanes';
 
 Transitioner = {
   _transitionEvents: 'webkitTransitionEnd.transitioner oTransitionEnd.transitioner transitionEnd.transitioner msTransitionEnd.transitioner transitionend.transitioner',
+  transitioning: false,
   
   attach: function(template) {
-    var oldContext, self = this;
+    var oldPartial, self = this;
     
     self.container = template.find('.transitioner-panes');
     self.leftPane = template.find('.left-pane');
     self.rightPane = template.find('.right-pane');
     
     Deps.autorun(function() {
-      var newContext = Router.current();
+      var newPartial = Router._partials.get();
       
-      if (! oldContext || oldContext.path !== newContext.path) {
+      if (! oldPartial || newPartial.template != oldPartial.template) {
         self.transitionStart();
-        oldContext = newContext;
+        oldPartial = newPartial;
       }
     });
   },
   
   transitionStart: function() {
-    console.log('>> Transition happening');
     var self = this;
+    
+    // kill exisiting transition
+    self.transitioning && self.transitionEnd();
+    self.transitioning = true;
     
     if (! self.reverse) {
       self.renderTo(self.leftPane);
@@ -79,6 +64,8 @@ Transitioner = {
     // finish.
     $(self.container).removeClass('transitioning')
       .off(self._transitionEvents);
+    
+    self.transitioning = false;
   },
   
   renderTo: function(pane) {
