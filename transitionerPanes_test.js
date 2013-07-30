@@ -23,7 +23,6 @@ Tinytest.add('TransitionerPanes - always re-renders', function(test) {
     });
 
     this.route('two', {
-      path: '/two',
       data: function() { return Session.get('twoRoute'); }
     });
   });
@@ -60,3 +59,49 @@ Tinytest.add('TransitionerPanes - always re-renders', function(test) {
   Deps.flush()
   test.equal(renderedPanes.text().trim(), 'two on on');
 }); 
+
+
+Tinytest.add('TransitionerPanes - transitionType is respected', function(test) {
+  var router = new ClientRouter({
+    autoRender: false,
+    autoStart: true,
+    layout: 'transitionerPanes'
+  });
+  Transitioner.router = router;
+  
+  router.map(function () {
+    this.route('one', {
+      path: '/'
+    });
+
+    this.route('two');
+  });
+  
+  router.start();
+  router.go('one');
+  var renderedPanes = new OnscreenDiv(Spark.render(_.bind(router.render, router)));
+  
+  Deps.flush()
+  test.isFalse($(renderedPanes.div).find('.transitioner-panes').hasClass('transitioning'));
+  
+  router.go('two')
+  Deps.flush()
+  test.isTrue($(renderedPanes.div).find('.transitioner-panes').hasClass('transitioning'));
+  Transitioner.transitionEnd(); // simulate the end of the animation
+  
+  Transitioner.transitionType = function() { return false; }
+  
+  router.go('one');
+  Deps.flush()
+  test.isFalse($(renderedPanes.div).find('.transitioner-panes').hasClass('transitioning'));
+  
+  router.go('two')
+  Deps.flush()
+  test.isFalse($(renderedPanes.div).find('.transitioner-panes').hasClass('transitioning'));
+  
+  Transitioner.transitionType = function() { return 'special'; }
+  router.go('one');
+  Deps.flush()
+  test.isTrue($(renderedPanes.div).find('.transitioner-panes').hasClass('transitioning'));
+  test.isTrue($(renderedPanes.div).find('.transitioner-panes').hasClass('special'));
+});
