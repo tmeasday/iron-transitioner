@@ -5,7 +5,7 @@ Transitioner = {
   transitioning: false,
   
   attach: function(template) {
-    var oldPartial, self = this;
+    var oldPartial, oldPath, self = this;
     
     self.container = template.find('.transitioner-panes');
     self.leftPane = template.find('.left-pane');
@@ -13,10 +13,12 @@ Transitioner = {
     
     Deps.autorun(function() {
       var newPartial = Router._partials.get();
+      var newPath = Router.current().path;
       
-      if (! oldPartial || newPartial.template != oldPartial.template) {
+      if (! oldPartial || oldPath !== newPath || newPartial.template != oldPartial.template) {
         self.transitionStart();
         oldPartial = newPartial;
+        oldPath = newPath;
       }
     });
   },
