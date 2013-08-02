@@ -46,10 +46,6 @@ Transitioner = {
       if (self.transitionType)
         type = self.transitionType(oldRender, newRender, type)
       
-      // save for next time
-      oldRender = newRender;
-      self._nextTransitionType = null;
-      
       // if type is false, we are explicitly _NOT_ transitioning
       if (type === false) {
         // console.log('changing without transition', oldRender, newRender)
@@ -67,6 +63,10 @@ Transitioner = {
         // console.log('transitioning', self.leftIsNext, oldRender, newRender)
         self.transitionStart(type, oldRender, newRender);
       }
+      
+      // save for next time
+      oldRender = newRender;
+      self._nextTransitionType = null;
     });
   },
   
