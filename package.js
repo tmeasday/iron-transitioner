@@ -9,3 +9,17 @@ Package.on_use(function (api) {
     'transitionerPanes.js'
   ], 'client')
 });
+
+Package.on_test(function(api) {
+  api.use([
+    'iron-transitioner',
+    'tinytest',
+    'test-helpers',
+    'templating',
+  ]);
+  
+  api.add_files([
+    'transitionerPanes_test.html',
+    'transitionerPanes_test.js'
+  ], 'client')
+});

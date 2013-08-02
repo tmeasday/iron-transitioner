@@ -1,6 +1,8 @@
 ClientRouter.prototype.layout = 'transitionerPanes';
 
 Transitioner = {
+  // by default, listen to the singleton router, override to not (e.g. tests)
+  router: Router,
   _transitionEvents: 'webkitTransitionEnd.transitioner oTransitionEnd.transitioner transitionEnd.transitioner msTransitionEnd.transitioner transitionend.transitioner',
   transitioning: false,
   
@@ -12,8 +14,8 @@ Transitioner = {
     self.rightPane = template.find('.right-pane');
     
     Deps.autorun(function() {
-      var newPartial = Router._partials.get();
-      var newPath = Router.current().path;
+      var newPartial = self.router._partials.get();
+      var newPath = self.router.current().path;
       
       if (! oldPartial || oldPath !== newPath || newPartial.template != oldPartial.template) {
         self.transitionStart();
@@ -71,9 +73,11 @@ Transitioner = {
   },
   
   renderTo: function(pane) {
+    var self = this;
+    
     pane.appendChild(Meteor.render(function() {
       // render the current page to the current pane
-      return Router._partials.get().render();
+      return self.router._partials.get().render();
     }));
     
     this.nextPage = pane;
