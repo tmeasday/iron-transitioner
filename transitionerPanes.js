@@ -96,7 +96,7 @@ Transitioner = {
 
 Template.transitionerPanes.rendered = function() {
   if (! this.attached) {
-    Transitioner.attach(this);
     this.attached = true;
+    Transitioner.attach(this);
   }
 }
