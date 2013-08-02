@@ -89,9 +89,13 @@ Transitioner = {
     self.renderToNextPane(self.leftIsNext ? self.leftPane : self.rightPane);
     self.leftIsNext = ! self.leftIsNext;
     
-    self.lastTransitionClasses = type + ' from-' + from.partial.template + 
-      ' to-' + to.partial.template;
-    $(self.container).addClass(self.lastTransitionClasses)
+    var classes = type;
+    if (_.isString(from.partial.template))
+      classes = classes + ' from-' + from.partial.template;
+    if (_.isString(to.partial.template))
+      classes = classes + ' to-' + to.partial.template;
+    $(self.container).addClass(self.lastTransitionClasses = classes)
+    
     self.container.offsetWidth; // force a redraw
     
     $(self.container).addClass('transitioning')
