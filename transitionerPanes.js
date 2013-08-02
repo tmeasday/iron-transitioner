@@ -19,14 +19,15 @@ Transitioner = {
       
       if (! oldPartial || oldPath !== newPath || newPartial.template != oldPartial.template) {
         self.transitionStart();
-        oldPartial = newPartial;
-        oldPath = newPath;
       } else {
         var currentPane = self.reverse ? self.leftPane : self.rightPane;
         
         self.clearPane(currentPane);
-        self.renderTo(currentPane);
+        self.renderToPane(currentPane);
       }
+      
+      oldPartial = newPartial;
+      oldPath = newPath;
     });
   },
   
@@ -38,10 +39,10 @@ Transitioner = {
     self.transitioning = true;
     
     if (! self.reverse) {
-      self.renderTo(self.leftPane);
+      self.renderToNextPane(self.leftPane);
       self.reverse = true;
     } else {
-      self.renderTo(self.rightPane);
+      self.renderToNextPane(self.rightPane);
       self.reverse = false;
     }
     
@@ -81,14 +82,17 @@ Transitioner = {
     pane.innerHTML = '';
   },
   
-  renderTo: function(pane) {
+  renderToPane: function(pane) {
     var self = this;
     
     pane.appendChild(Meteor.render(function() {
       // render the current page to the current pane
       return self.router._partials.get().render();
     }));
-    
+  },
+  
+  renderToNextPane: function(pane) {
+    this.renderToPane(pane);
     this.nextPage = pane;
     $(pane).addClass('next-page');
   }
