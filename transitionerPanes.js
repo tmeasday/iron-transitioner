@@ -7,6 +7,7 @@ Transitioner = {
   transitioning: false,
   leftIsNext: true,
   lastType: null,
+  _nextTransitionType: null,
   
   // we are transitioning from -> to.
   //   what template should we use?
@@ -20,7 +21,9 @@ Transitioner = {
         from.partial.template === to.partial.template)
       return false;
     
-    // XXX: if next transition is set, return that
+    // did we set a next transition?
+    if (this._nextTransitionType !== null)
+      return this._nextTransitionType;
     
     // a standard transition
     return 'normal';
@@ -41,10 +44,11 @@ Transitioner = {
       
       var type = self._defaultTransitionType(oldRender, newRender);
       if (self.transitionType)
-        type = self.transitionType.call(oldRender, newRender, type)
+        type = self.transitionType(oldRender, newRender, type)
       
       // save for next time
       oldRender = newRender;
+      self._nextTransitionType = null;
       
       // if type is false, we are explicitly _NOT_ transitioning
       if (type === false) {
@@ -52,7 +56,7 @@ Transitioner = {
         
         // first time
         if (! self.currentPage) {
-          self.currentPage = self.leftPane;
+          self.makeCurrentPage(self.leftPane);
           self.leftIsNext = false;
         }
         
@@ -66,8 +70,18 @@ Transitioner = {
     });
   },
   
+  setNextTransitionType: function(type) {
+    this._nextTransitionType = type;
+  },
+  
+  back: function() {
+    this.setNextTransitionType('back');
+    Location.back()
+  },
+  
   transitionStart: function(type) {
     var self = this;
+    self.lastType = type;
     
     // kill exisiting transition
     self.transitioning && self.transitionEnd();
@@ -76,10 +90,10 @@ Transitioner = {
     self.renderToNextPane(self.leftIsNext ? self.leftPane : self.rightPane);
     self.leftIsNext = ! self.leftIsNext;
     
+    $(self.container).addClass(self.lastType)
     self.container.offsetWidth; // force a redraw
     
-    self.lastType = type || 'normal';
-    $(self.container).addClass('transitioning ' + self.lastType)
+    $(self.container).addClass('transitioning')
       .on(self._transitionEvents, function(e) {
         if (! $(e.target).is(self.container))
           return;
@@ -98,9 +112,7 @@ Transitioner = {
       
       self.clearPane(self.currentPage);
     }
-    
-    self.currentPage = self.nextPage;
-    $(self.currentPage).removeClass('next-page').addClass('current-page');
+    self.makeCurrentPage(self.nextPage);
     
     // finish.
     $(self.container).removeClass('transitioning ' + self.lastType)
@@ -126,8 +138,17 @@ Transitioner = {
   
   renderToNextPane: function(pane) {
     this.renderToPane(pane);
+    this.makeNextPage(pane);
+  },
+  
+  makeCurrentPage: function(pane) {
+    this.currentPage = pane;
+    $(pane).removeClass('next-page').addClass('current-page');
+  },
+  
+  makeNextPage: function(pane) {
     this.nextPage = pane;
-    $(pane).addClass('next-page');
+    $(pane).removeClass('current-page').addClass('next-page');
   }
 }
 
