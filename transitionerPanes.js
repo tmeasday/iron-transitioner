@@ -11,9 +11,19 @@ Transitioner = {
   // we are transitioning from -> to.
   //   what template should we use?
   //   return false to not transition at all (directly render into currentPage)
-  transitionType: function(from, to) {
-    // by default, no transition the first time, otherwise normal
-    return (! _.isUndefined(from)) && 'normal';
+  _defaultTransitionType: function(from, to) {
+    // rendering the initial page? no transition
+    if (_.isUndefined(from)) return false;
+    
+    // just the data context changed? no transition
+    if (from.context.path === to.context.path &&
+        from.partial.template === to.partial.template)
+      return false;
+    
+    // XXX: if next transition is set, return that
+    
+    // a standard transition
+    return 'normal';
   },
   
   attach: function(template) {
@@ -25,25 +35,19 @@ Transitioner = {
     
     Deps.autorun(function() {
       var newRender = {
-        partial: self.router._partials.get(), context: self.router.current()
-      }
-      var transitioned = false;
+        partial: self.router._partials.get(),
+        context: self.router.current()
+      };
       
-      // newRender && console.log(newRender.context.path)
-      if (! oldRender || oldRender.context.path !== newRender.context.path 
-          || oldRender.partial.template !== newRender.partial.template) {
-        
-        // XXX: I want to pass the partial in here too...
-        var type = self.transitionType(oldRender, newRender);
-        
-        if (type !== false) {
-          // console.log('transitioning', self.leftIsNext, oldRender, newRender)
-          self.transitionStart(type);
-          transitioned = true;
-        }
-      }
+      var type = self._defaultTransitionType(oldRender, newRender);
+      if (self.transitionType)
+        type = self.transitionType.call(oldRender, newRender, type)
       
-      if (! transitioned) {
+      // save for next time
+      oldRender = newRender;
+      
+      // if type is false, we are explicitly _NOT_ transitioning
+      if (type === false) {
         // console.log('changing without transition', oldRender, newRender)
         
         // first time
@@ -54,9 +58,11 @@ Transitioner = {
         
         self.clearPane(self.currentPage);
         self.renderToPane(self.currentPage);
+        
+      } else {
+        // console.log('transitioning', self.leftIsNext, oldRender, newRender)
+        self.transitionStart(type);
       }
-      
-      oldRender = newRender;
     });
   },
   
