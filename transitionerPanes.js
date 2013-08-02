@@ -21,6 +21,11 @@ Transitioner = {
         self.transitionStart();
         oldPartial = newPartial;
         oldPath = newPath;
+      } else {
+        var currentPane = self.reverse ? self.leftPane : self.rightPane;
+        
+        self.clearPane(currentPane);
+        self.renderTo(currentPane);
       }
     });
   },
@@ -58,8 +63,7 @@ Transitioner = {
     if (self.currentPage) {
       $(self.currentPage).removeClass('current-page');
       
-      // XXX: remove this properly, making sure bindings work correctly
-      self.currentPage.innerHTML = '';
+      self.clearPane(self.currentPage);
     }
     
     self.currentPage = self.nextPage;
@@ -70,6 +74,11 @@ Transitioner = {
       .off(self._transitionEvents);
     
     self.transitioning = false;
+  },
+  
+  clearPane: function(pane) {
+    // XXX: remove this properly, making sure bindings work correctly
+    pane.innerHTML = '';
   },
   
   renderTo: function(pane) {
