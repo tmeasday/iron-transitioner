@@ -4,9 +4,9 @@ Transitioner = {
   // by default, listen to the singleton router, override to not (e.g. tests)
   router: Router,
   _transitionEvents: 'webkitTransitionEnd.transitioner oTransitionEnd.transitioner transitionEnd.transitioner msTransitionEnd.transitioner transitionend.transitioner',
+  lastTransitionClasses: null,
   transitioning: false,
   leftIsNext: true,
-  lastType: null,
   _nextTransitionType: null,
   
   // we are transitioning from -> to.
@@ -65,7 +65,7 @@ Transitioner = {
         
       } else {
         // console.log('transitioning', self.leftIsNext, oldRender, newRender)
-        self.transitionStart(type);
+        self.transitionStart(type, oldRender, newRender);
       }
     });
   },
@@ -79,9 +79,8 @@ Transitioner = {
     Location.back()
   },
   
-  transitionStart: function(type) {
+  transitionStart: function(type, from, to) {
     var self = this;
-    self.lastType = type;
     
     // kill exisiting transition
     self.transitioning && self.transitionEnd();
@@ -90,7 +89,9 @@ Transitioner = {
     self.renderToNextPane(self.leftIsNext ? self.leftPane : self.rightPane);
     self.leftIsNext = ! self.leftIsNext;
     
-    $(self.container).addClass(self.lastType)
+    self.lastTransitionClasses = type + ' from-' + from.partial.template + 
+      ' to-' + to.partial.template;
+    $(self.container).addClass(self.lastTransitionClasses)
     self.container.offsetWidth; // force a redraw
     
     $(self.container).addClass('transitioning')
@@ -115,7 +116,7 @@ Transitioner = {
     self.makeCurrentPage(self.nextPage);
     
     // finish.
-    $(self.container).removeClass('transitioning ' + self.lastType)
+    $(self.container).removeClass('transitioning ' + self.lastTransitionClasses)
       .off(self._transitionEvents);
     
     self.transitioning = false;
