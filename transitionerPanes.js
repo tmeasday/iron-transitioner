@@ -17,33 +17,34 @@ Transitioner = {
   },
   
   attach: function(template) {
-    var oldPartial, oldContext, self = this;
+    var oldRender, self = this;
     
     self.container = template.find('.transitioner-panes');
     self.leftPane = template.find('.left-pane');
     self.rightPane = template.find('.right-pane');
     
     Deps.autorun(function() {
-      var newPartial = self.router._partials.get();
-      var newContext = self.router.current();
+      var newRender = {
+        partial: self.router._partials.get(), context: self.router.current()
+      }
       var transitioned = false;
       
-      newContext && console.log(newContext.path)
-      if (! oldPartial || ! oldContext || newContext.path !== oldContext.path 
-          || newPartial.template !== oldPartial.template) {
+      // newRender && console.log(newRender.context.path)
+      if (! oldRender || oldRender.context.path !== newRender.context.path 
+          || oldRender.partial.template !== newRender.partial.template) {
         
         // XXX: I want to pass the partial in here too...
-        var type = self.transitionType(oldContext, newContext);
+        var type = self.transitionType(oldRender, newRender);
         
         if (type !== false) {
-          console.log('transitioning', self.leftIsNext, oldContext, newContext)
+          // console.log('transitioning', self.leftIsNext, oldRender, newRender)
           self.transitionStart(type);
           transitioned = true;
         }
       }
       
       if (! transitioned) {
-        console.log('changing without transition', oldContext, newContext)
+        // console.log('changing without transition', oldRender, newRender)
         
         // first time
         if (! self.currentPage) {
@@ -55,8 +56,7 @@ Transitioner = {
         self.renderToPane(self.currentPage);
       }
       
-      oldPartial = newPartial;
-      oldContext = newContext;
+      oldRender = newRender;
     });
   },
   
@@ -84,7 +84,7 @@ Transitioner = {
   
   transitionEnd: function() {
     var self = this;
-    console.log('transitionEnd', self.currentPage, self.nextPage);
+    // console.log('transitionEnd', self.currentPage, self.nextPage);
     
     // switch classes around
     if (self.currentPage) {
@@ -104,13 +104,12 @@ Transitioner = {
   },
   
   clearPane: function(pane) {
-    // XXX: remove this properly, making sure bindings work correctly
-    console.log('clearing pane', pane)
+    // console.log('clearing pane', pane)
     pane.innerHTML = '';
   },
   
   renderToPane: function(pane) {
-    console.log('rendering to pane', pane)
+    // console.log('rendering to pane', pane)
     var self = this;
     
     pane.appendChild(Meteor.render(function() {
