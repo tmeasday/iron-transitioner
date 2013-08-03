@@ -128,6 +128,7 @@ Transitioner = {
   
   clearPane: function(pane) {
     // console.log('clearing pane', pane)
+    Spark.finalize(pane);
     pane.innerHTML = '';
   },
   
