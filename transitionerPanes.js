@@ -39,12 +39,21 @@ Transitioner = {
     Deps.autorun(function() {
       var newRender = {
         partial: self.router._partials.get(),
-        context: self.router.current()
+        // don't want to be reactive on the context, because it's sure
+        // to trigger a re-active re-rendering (and partial change)
+        // but in a different flush 
+        context: Deps.nonreactive(function(){ return self.router.current() })
       };
       
       var type = self._defaultTransitionType(oldRender, newRender);
       if (self.transitionType)
         type = self.transitionType(oldRender, newRender, type)
+      
+      // console.log(oldRender && oldRender.context.path, 
+      //   oldRender && oldRender.partial.template,
+      //   newRender.context.path, 
+      //   newRender.partial.template, 
+      //   type);
       
       // if type is false, we are explicitly _NOT_ transitioning
       if (type === false) {
