@@ -30,24 +30,48 @@ Transitioner = {
   },
   
   attach: function(template) {
-    var oldRender, self = this;
+    var self = this, oldRender, newRender, type;
+    var dependency = new Deps.Dependency;
     
     self.container = template.find('.transitioner-panes');
     self.leftPane = template.find('.left-pane');
     self.rightPane = template.find('.right-pane');
     
+    // the first auto run talks to the router and .change()s the dependency
+    // when ever a transition is necessary. In the process it stores
+    // oldRender, newRender and type.
     Deps.autorun(function() {
-      var newRender = {
+      newRender = {
         partial: self.router._partials.get(),
-        // don't want to be reactive on the context, because it's sure
-        // to trigger a re-active re-rendering (and partial change)
-        // but in a different flush 
-        context: Deps.nonreactive(function(){ return self.router.current() })
+        // XXX: shouldn't need to do this, the router is doing something funny
+        context: Deps.nonreactive(function() { return self.router.current(); })
       };
       
-      var type = self._defaultTransitionType(oldRender, newRender);
+      var done = function() {
+        // save for next time
+        oldRender = newRender;
+        self._nextTransitionType = null;
+      }
+      
+      type = self._defaultTransitionType(oldRender, newRender);
       if (self.transitionType)
         type = self.transitionType(oldRender, newRender, type)
+      
+      // console.log('new render', oldRender, newRender, type)
+      
+      // if type is false, we are explicitly _NOT_ transitioning
+      // so do nothing.
+      if (type === false)
+        return done();
+      
+      // ok, we have a transition type, so we re-run the rendering computation 
+      dependency.changed();
+      
+      Deps.afterFlush(done);
+    });
+    
+    Deps.autorun(function() {
+      dependency.depend();
       
       // console.log(oldRender && oldRender.context.path, 
       //   oldRender && oldRender.partial.template,
@@ -55,27 +79,18 @@ Transitioner = {
       //   newRender.partial.template, 
       //   type);
       
-      // if type is false, we are explicitly _NOT_ transitioning
+      // if type is false, this must be the first time
       if (type === false) {
-        // console.log('changing without transition', oldRender, newRender)
+        // console.log('setting up transition', oldRender, newRender)
         
-        // first time
-        if (! self.currentPage) {
-          self.makeCurrentPage(self.leftPane);
-          self.leftIsNext = false;
-        }
-        
-        self.clearPane(self.currentPage);
+        self.makeCurrentPage(self.leftPane);
+        self.leftIsNext = false;
         self.renderToPane(self.currentPage);
         
       } else {
         // console.log('transitioning', self.leftIsNext, oldRender, newRender)
         self.transitionStart(type, oldRender, newRender);
       }
-      
-      // save for next time
-      oldRender = newRender;
-      self._nextTransitionType = null;
     });
   },
   
