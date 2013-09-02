@@ -59,7 +59,7 @@ Transitioner = {
       if (self.transitionType)
         type = self.transitionType(oldRender, newRender, type)
       
-      console.log('new render', oldRender, newRender, type)
+      // console.log('new render', oldRender, newRender, type)
       
       // if type is false, we are explicitly _NOT_ transitioning
       // so do nothing.
@@ -73,22 +73,22 @@ Transitioner = {
     Deps.autorun(function() {
       dependency.depend();
       
-      console.log(oldRender && oldRender.context.path, 
-        oldRender && oldRender.partial.template,
-        newRender.context.path, 
-        newRender.partial.template, 
-        type);
+      // console.log(oldRender && oldRender.context.path, 
+      //   oldRender && oldRender.partial.template,
+      //   newRender.context.path, 
+      //   newRender.partial.template, 
+      //   type);
       
       // if type is false, this must be the first time
       if (type === false) {
-        console.log('setting up transition', oldRender, newRender)
+        // console.log('setting up transition', oldRender, newRender)
         
         self.makeCurrentPage(self.leftPane);
         self.leftIsNext = false;
         self.renderToPane(self.currentPage);
         
       } else {
-        console.log('transitioning', self.leftIsNext, oldRender, newRender)
+        // console.log('transitioning', self.leftIsNext, oldRender, newRender)
         self.transitionStart(type, oldRender, newRender);
       }
       
