@@ -37,6 +37,14 @@ Transitioner = {
     self.leftPane = template.find('.left-pane');
     self.rightPane = template.find('.right-pane');
     
+    // call this after each transition is setup, ready for the next time
+    var done = function() {
+      // save for next time
+      oldRender = newRender;
+      self._nextTransitionType = null;
+    }
+    
+    
     // the first auto run talks to the router and .change()s the dependency
     // when ever a transition is necessary. In the process it stores
     // oldRender, newRender and type.
@@ -47,17 +55,11 @@ Transitioner = {
         context: Deps.nonreactive(function() { return self.router.current(); })
       };
       
-      var done = function() {
-        // save for next time
-        oldRender = newRender;
-        self._nextTransitionType = null;
-      }
-      
       type = self._defaultTransitionType(oldRender, newRender);
       if (self.transitionType)
         type = self.transitionType(oldRender, newRender, type)
       
-      // console.log('new render', oldRender, newRender, type)
+      console.log('new render', oldRender, newRender, type)
       
       // if type is false, we are explicitly _NOT_ transitioning
       // so do nothing.
@@ -66,31 +68,31 @@ Transitioner = {
       
       // ok, we have a transition type, so we re-run the rendering computation 
       dependency.changed();
-      
-      Deps.afterFlush(done);
     });
     
     Deps.autorun(function() {
       dependency.depend();
       
-      // console.log(oldRender && oldRender.context.path, 
-      //   oldRender && oldRender.partial.template,
-      //   newRender.context.path, 
-      //   newRender.partial.template, 
-      //   type);
+      console.log(oldRender && oldRender.context.path, 
+        oldRender && oldRender.partial.template,
+        newRender.context.path, 
+        newRender.partial.template, 
+        type);
       
       // if type is false, this must be the first time
       if (type === false) {
-        // console.log('setting up transition', oldRender, newRender)
+        console.log('setting up transition', oldRender, newRender)
         
         self.makeCurrentPage(self.leftPane);
         self.leftIsNext = false;
         self.renderToPane(self.currentPage);
         
       } else {
-        // console.log('transitioning', self.leftIsNext, oldRender, newRender)
+        console.log('transitioning', self.leftIsNext, oldRender, newRender)
         self.transitionStart(type, oldRender, newRender);
       }
+      
+      return done();
     });
   },
   
