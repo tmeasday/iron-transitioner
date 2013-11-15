@@ -7,7 +7,11 @@ Package.on_use(function (api) {
   api.add_files([
     'transitionerPanes.html', 
     'transitionerPanes.js'
-  ], 'client')
+  ], 'client');
+  
+  if (! _.isUndefined(api.export)) {
+    api.export('Transitioner', 'client');
+  }
 });
 
 Package.on_test(function(api) {
