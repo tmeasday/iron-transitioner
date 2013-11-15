@@ -9,7 +9,7 @@ Package.on_use(function (api) {
     'transitionerPanes.js'
   ], 'client');
   
-  if (! _.isUndefined(api.export)) {
+  if (typeof(api.export) !== 'undefined') {
     api.export('Transitioner', 'client');
   }
 });
