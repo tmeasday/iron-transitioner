@@ -1,0 +1,10 @@
+{
+  "name": "iron-transitioner",
+  "description": "Easy page-page transitions integrated with IronRouter",
+  "homepage": "https://github.com/percolatestudio/iron-transitioner",
+  "author": "Tom Coleman (https://github.com/tmeasday)",
+  "version": "0.0.1",
+  "packages": {
+    "iron-router": {}
+  }
+}

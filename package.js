@@ -5,13 +5,19 @@ Package.describe({
 Package.on_use(function (api) {
   api.use(['iron-router', 'templating'], 'client');
   api.add_files([
+    // 'transitioned_default_layout.html',
+    // 'transitioning_page_manager.js',
+    // XXX: remove this
     'transitionerPanes.html', 
-    'transitionerPanes.js'
+    'transitioned_yield.js'
   ], 'client')
+  
+  api.export('TransitionedYield', 'client', {testOnly: true});
 });
 
 Package.on_test(function(api) {
   api.use([
+    'iron-router',
     'iron-transitioner',
     'tinytest',
     'test-helpers',
@@ -19,7 +25,7 @@ Package.on_test(function(api) {
   ]);
   
   api.add_files([
-    'transitionerPanes_test.html',
-    'transitionerPanes_test.js'
+    'tests/templates.html',
+    'tests/transitioned_yield.js'
   ], 'client')
 });
