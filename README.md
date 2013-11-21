@@ -1,34 +1,29 @@
-To use, simply place 
+### Installation
+
+Just `mrt add iron-transitioner`. That's it.
+
+### Custom CSS
+
+The built in CSS that's installed with IT probably won't work with your layout. 
+
+If not, take a look at `transitioned_default_layout.less` for ideas.
+
+**IMPORTANT**: You need to have a "null" transition on the `.transitioner-panes` to inform IT when the transition is over. The built in `default` transition uses a delayed transition to achieve this.
+
+NOTE: If you don't want to fight the built in styles, just rename the default transition using `Router.transitionType()` (see below).
+
+### Custom Layouts
+
+If you want to use a layout, you can transition a yielded section simply by calling `{{transitionedYield}}`.
+
+### Custom transition types
+
+You can use:
 
 ```
-  {{> transitionerPanes}}
+Router.transitionType(function(fromTemplate, toTemplate) {});
 ```
 
-in your _master_ layout.
+to set the type of the transition based on the templates being used.
 
-Notes:
-
-1. Each page will be rendered within it's own layout.
-2. The transitioner will skip between the left and right panes.
-3. Here's some minimal CSS to get it going (you'll probably want significantly more than this):
-
-```css
-.transitioner-panes, .current-page, .next-page {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  
-  -webkit-transform: translate3d(0, 0, 0);
-  -webkit-transition: all 500ms ease-in;
-}
-
-.next-page {
-  -webkit-transform: translate3d(100%, 0, 0);
-}
-
-.transitioner-panes.transitioning {
-  -webkit-transform: translate3d(-100%, 0, 0);
-}
-```
+This type will be added to the `.transitioner-panes`, along with `.from-X` and `.to-Y` (where `X` and `Y` are the names of the templates being transitioned).
