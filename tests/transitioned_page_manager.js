@@ -83,7 +83,7 @@ Tinytest.add('TransitionedPageManager - correct classes set', function (test) {
   Deps.flush();
   
   var classes = div.div.children[0].className;
-  test.matches(classes, /normal/, 'No type class set on div');
+  test.matches(classes, /default/, 'No type class set on div');
   test.matches(classes, /from-one/, 'No from class set on div');
   test.matches(classes, /to-two/, 'No to class set on div');
 });
