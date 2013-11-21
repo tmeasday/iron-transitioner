@@ -1,0 +1,54 @@
+.transition(@args) {
+  -webkit-transition: @args;
+  -moz-transition: @args;
+  -o-transition: @args;
+  transition: @args;
+}
+
+.transform(@args) {
+    -webkit-transform: @args; 
+    -moz-transform: @args; 
+    -ms-transform: @args; 
+    -o-transform: @args; 
+    transform: @args;
+}
+
+.transitioner-panes.default {
+  @transition-time: 600ms;
+  
+  opacity: 1;
+  .transition(opacity 0ms linear @transition-time);
+  &.transitioning {
+    opacity: 0.9999;
+  }
+  
+  &, > .current-page, > .next-page {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  
+  > .current-page {
+    .transform(translateX(0) translateZ(0));
+  }
+  
+  > .next-page {
+    .transform(translateX(100%) translateZ(0));
+  }
+  
+  &.transitioning {
+    > .current-page, > .next-page {
+      .transition(all @transition-time ease-in-out);
+    }
+  
+    > .current-page {
+      .transform(translateX(-100%) translateZ(0));
+    }
+  
+    > .next-page {
+      .transform(translateX(0) translateZ(0));
+    }
+  }
+}

@@ -3,10 +3,10 @@ Package.describe({
 });
 
 Package.on_use(function (api) {
-  api.use(['iron-router', 'templating'], 'client');
+  api.use(['iron-router', 'templating', 'underscore', 'less'], 'client');
   api.add_files([
-    // 'lib/utils.js', 
     'lib/transitioned_default_layout.html',
+    'lib/transitioned_default_layout.less',
     'lib/transitioned_yield.html', 
     'lib/transitioned_yield.js',
     'lib/transitioned_page_manager.js'
