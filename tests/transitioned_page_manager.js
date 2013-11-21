@@ -66,3 +66,45 @@ Tinytest.add('TransitionedPageManager - non transitioned yield', function (test)
   Deps.flush();
   test.equal(div.text().trim(), 'Two', 'one not cleared');
 });
+
+
+Tinytest.add('TransitionedPageManager - correct classes set', function (test) {
+  var pageManager = new TransitionedPageManager;
+  
+  var frag = Spark.render(function() {
+    return pageManager.renderLayout();
+  });
+  var div = new OnscreenDiv(frag);
+  
+  pageManager.setTemplate('one');
+  Deps.flush();
+  
+  pageManager.setTemplate('two');
+  Deps.flush();
+  
+  var classes = div.div.children[0].className;
+  test.matches(classes, /normal/, 'No type class set on div');
+  test.matches(classes, /from-one/, 'No from class set on div');
+  test.matches(classes, /to-two/, 'No to class set on div');
+});
+
+Tinytest.add('TransitionedPageManager - transitionType function', function (test) {
+  var pageManager = new TransitionedPageManager;
+  pageManager.transitionType = function() {
+    return 'special';
+  }
+  
+  var frag = Spark.render(function() {
+    return pageManager.renderLayout();
+  });
+  var div = new OnscreenDiv(frag);
+  
+  pageManager.setTemplate('one');
+  Deps.flush();
+  
+  pageManager.setTemplate('two');
+  Deps.flush();
+  
+  var classes = div.div.children[0].className;
+  test.matches(classes, /special/, 'No special class set on div');
+});
