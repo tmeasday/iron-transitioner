@@ -1,8 +1,3 @@
-Router.configure({
-  autoRender: false,
-  autoStart: false
-});
-
 // XXX: could I just use a real page manager?
 var PageManagerMock = function() {
   this.dependency = new Deps.Dependency;
@@ -62,7 +57,7 @@ Tinytest.add('TransitionedYield - basic transitioning', function (test) {
   Deps.flush();
   test.matches(div.text().trim(), /One\s+Two/, 'two not rendered alongside');
   
-  transitionedYield.transitionEnd();
+  transitionedYield.stopTransition();
   test.equal(div.text().trim(), 'Two', 'one not cleared');
   
   pageManager.setTemplate('one');
@@ -90,7 +85,7 @@ Tinytest.add('TransitionedYield - reactivity', function (test) {
   Deps.flush();
   test.matches(div.text().trim(), /1-first\s+2-second/, 'two not rendered alongside');
   
-  transitionedYield.transitionEnd();
+  transitionedYield.stopTransition();
   pageManager.setTemplate('twoData');
   Deps.flush();
   test.equal(div.text().trim(), '2-second', 'two not rendered');
@@ -124,4 +119,36 @@ Tinytest.add('TransitionedYield - cleanup', function (test) {
   pageManager.setData({property: 'third'});
   Deps.flush();
   test.equal(made_calls, calls);
+  
+  transitionedYield.stopTransition();
+  Deps.flush();
+  test.equal(made_calls, calls);
+});
+
+Tinytest.add('TransitionedYield - classes set', function (test) {
+  var pageManager = new PageManagerMock()
+  var transitionedYield = new TransitionedYield(pageManager, '__main__');
+  
+  var frag = Spark.render(function() {
+    return transitionedYield.render();
+  });
+  var div = new OnscreenDiv(frag);
+  
+  pageManager.setTemplate('one');
+  Deps.flush();
+  
+  transitionedYield.transition('normal');
+  pageManager.setTemplate('two');
+  Deps.flush();
+  
+  var classes = div.div.children[0].className;
+  test.matches(classes, /normal/, 'No class set on div');
+  test.matches(classes, /transitioning/, 'No transitioning set on div');
+  
+  transitionedYield.stopTransition();
+  var classes = div.div.children[0].className;
+  Deps.flush();
+  
+  var classes = div.div.children[0].className;
+  test.equal(classes, 'transitioner-panes', 'Classes not cleared');
 });
