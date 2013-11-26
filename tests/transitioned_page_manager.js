@@ -32,7 +32,7 @@ Tinytest.add('TransitionedPageManager - basic transitioning', function (test) {
   test.equal(div.text().trim(), 'Two', 'one not cleared');
 });
 
-Tinytest.add('TransitionedPageManager - no transition when data changes', function (test) {
+Tinytest.add('TransitionedPageManager - no changes when data changes', function (test) {
   var pageManager = new TransitionedPageManager;
   
   var frag = Spark.render(function() {
@@ -43,10 +43,12 @@ Tinytest.add('TransitionedPageManager - no transition when data changes', functi
   pageManager.setTemplate('one');
   Deps.flush();
   test.equal(div.text().trim(), 'One', 'one not rendered');
+  var oneDiv = div.div.children[0].children[0].children[0];
   
   pageManager.setData({foo: 'bar'});
   Deps.flush();
   test.equal(div.text().trim(), 'One', 'one re-rendered');
+  test.equal(div.div.children[0].children[0].children[0], oneDiv, 'new oneDiv rendered!');
 });
 
 Tinytest.add('TransitionedPageManager - non transitioned yield', function (test) {
