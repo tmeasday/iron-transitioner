@@ -47,8 +47,10 @@ Tinytest.add('TransitionedPageManager - no changes when data changes', function 
   
   pageManager.setData({foo: 'bar'});
   Deps.flush();
-  test.equal(div.text().trim(), 'One', 'one re-rendered');
-  test.equal(div.div.children[0].children[0].children[0], oneDiv, 'new oneDiv rendered!');
+  test.equal(div.text().trim(), 'One', 'one not re-rendered');
+  var newOneDiv = div.div.children[0].children[0].children[0];
+  
+  test.equal(newOneDiv, oneDiv, 'new oneDiv rendered!');
 });
 
 Tinytest.add('TransitionedPageManager - non transitioned yield', function (test) {
