@@ -1,3 +1,5 @@
+## NOTE: to use IT with 0.8.0, try the blaze branch of percolatestudio/iron-transitioner. YMMV
+
 To use, simply place 
 
 ```
